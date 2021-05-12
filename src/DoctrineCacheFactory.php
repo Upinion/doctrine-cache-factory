@@ -32,6 +32,7 @@ class DoctrineCacheFactory
         'memcached' => 'Doctrine\Common\Cache\MemcachedCache',
         'memcache'  => 'Doctrine\Common\Cache\MemcacheCache',
         'redis'     => 'Doctrine\Common\Cache\RedisCache',
+        'redis'     => 'Doctrine\Common\Cache\PredisCache',
     ];
 
     /**
@@ -205,6 +206,22 @@ class DoctrineCacheFactory
 
         $driver = new self::$storage["redis"];
         $driver->setRedis($redis);
+
+        return $driver;
+    }
+    
+    /**
+     * Initialize a Doctrine PredisCache driver
+     * @return \Doctrine\Common\Cache\PredisCache instance
+     */
+    private static function initializePredisCacheDriver()
+    {
+
+        $options = self::getOption("predis");
+
+        $client = new \Predis\Client($options["connection"], $options["options"]); 
+        
+        $driver = new Doctrine\Common\Cache\PredisCache($client);
 
         return $driver;
     }
