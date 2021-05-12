@@ -140,7 +140,7 @@ class DoctrineCacheFactory
     public static function initializeCacheDriver($storage_type)
     {
         $options = self::getOption($storage_type);
-        if ($options && isset($options) && $options["forceAPC"]) {
+        if ($options && isset($options["forceAPC"]) && $options["forceAPC"]) {
             return self::initializeApcCacheDriver();    
         }
         $driverClass = "initialize" . ucfirst($storage_type) . "CacheDriver";
