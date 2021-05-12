@@ -1,5 +1,5 @@
 {
-    "name": "thefuriouscoder/doctrine-cache-factory",
+    "name": "upinion/doctrine-cache-factory",
     "description": "A simple static wrapper for Docrine Cache drivers.",
     "keywords": ["doctrine", "cache", "factory", "wrapper"],
     "license": "MIT",
@@ -17,11 +17,5 @@
     "require": {
         "php": ">=5.3.3",
         "doctrine/cache": "~1.5.1"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
-        }
     }
-
 }
