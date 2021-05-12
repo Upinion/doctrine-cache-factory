@@ -32,7 +32,7 @@ class DoctrineCacheFactory
         'memcached' => 'Doctrine\Common\Cache\MemcachedCache',
         'memcache'  => 'Doctrine\Common\Cache\MemcacheCache',
         'redis'     => 'Doctrine\Common\Cache\RedisCache',
-        'redis'     => 'Doctrine\Common\Cache\PredisCache',
+        'predis'     => 'Doctrine\Common\Cache\PredisCache',
     ];
 
     /**
@@ -139,6 +139,10 @@ class DoctrineCacheFactory
      */
     public static function initializeCacheDriver($storage_type)
     {
+        $options = self::getOption($storage_type);
+        if ($options && isset($options) && $options["forceAPC"]) {
+            return self::initializeApcCacheDriver();    
+        }
         $driverClass = "initialize" . ucfirst($storage_type) . "CacheDriver";
         return self::$driverClass();
     }
