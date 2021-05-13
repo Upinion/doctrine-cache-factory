@@ -207,6 +207,9 @@ class DoctrineCacheFactory
         $redis = new \Redis;
         $redis->connect($options["host"], $options["port"]);
         $redis->setOption(\Redis::OPT_PREFIX, $options["prefix"]);
+        if (isset($options["auth"]) {
+            $redis->auth($options["auth"]);
+        }
 
         $driver = new self::$storage["redis"];
         $driver->setRedis($redis);
