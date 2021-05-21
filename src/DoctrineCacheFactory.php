@@ -140,11 +140,20 @@ class DoctrineCacheFactory
     public static function initializeCacheDriver($storage_type)
     {
         $options = self::getOption($storage_type);
-        if ($options && isset($options["forceAPC"]) && $options["forceAPC"]) {
-            return self::initializeApcCacheDriver();    
+        if ($options && isset($options["forceDummy"]) && $options["forceDummy"]) {
+            return self::initializeDummyCacheDriver();    
         }
         $driverClass = "initialize" . ucfirst($storage_type) . "CacheDriver";
         return self::$driverClass();
+    }
+
+    /**
+     * Initialize a Doctrine dummy driver
+     * @return \TFC\Cache\DummyCache instance
+     */
+    private static function initializeDummyCacheDriver()
+    {
+        return $driver = new TFC\Cache\DummyCache();
     }
 
     /**
