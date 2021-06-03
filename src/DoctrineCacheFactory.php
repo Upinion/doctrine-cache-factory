@@ -153,7 +153,7 @@ class DoctrineCacheFactory
      */
     private static function initializeDummyCacheDriver()
     {
-        return $driver = new TFC\Cache\DummyCache();
+        return $driver = new \TFC\Cache\DummyCache();
     }
 
     /**
