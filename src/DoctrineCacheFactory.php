@@ -31,7 +31,7 @@ class DoctrineCacheFactory
         'apc'       => 'Doctrine\Common\Cache\ApcCache',
         'memcached' => 'Doctrine\Common\Cache\MemcachedCache',
         'memcache'  => 'Doctrine\Common\Cache\MemcacheCache',
-        'redis'     => 'Doctrine\Common\Cache\RedisCache',
+        'redis'     => '\TFC\Cache\CustomRedisCache',
         'predis'     => 'Doctrine\Common\Cache\PredisCache',
     ];
 
@@ -222,6 +222,9 @@ class DoctrineCacheFactory
 
         $driver = new self::$storage["redis"];
         $driver->setRedis($redis);
+        if (isset($options["cacheKeyLifetime"])) {
+            $driver->setCacheKeyLifetime(intval($options["cacheKeyLifetime"]));
+        }
 
         return $driver;
     }
