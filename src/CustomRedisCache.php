@@ -2,43 +2,119 @@
 
 namespace TFC\Cache;
 
-use Doctrine\Common\Cache\RedisCache;
+use TFC\Cache\CustomCacheProvider;
+use Doctrine\Common\Cache\Cache;
 use Redis;
 
 /**
  * Redis cache provider.
  */
-class CustomRedisCache extends RedisCache
+class CustomRedisCache extends CustomCacheProvider
 {
-    private $cacheKeyLifetime = 604800;
+    /**
+     * @var Redis|null
+     */
+    private $redis;
 
     /**
-     * Sets the cache key lifetime to use.
+     * Sets the redis instance to use.
      *
-     * @param int $value
+     * @param Redis $redis
      *
      * @return void
      */
-    public function setCacheKeyLifetime($value)
+    public function setRedis(Redis $redis)
     {
-        $this->cacheKeyLifetime = $value;
+        $redis->setOption(Redis::OPT_SERIALIZER, $this->getSerializerValue());
+        $this->redis = $redis;
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the redis instance used by the cache.
+     *
+     * @return Redis|null
      */
-    public function deleteAll()
+    public function getRedis()
     {
-        $namespaceCacheKey = $this->getNamespaceCacheKey();
-        $namespaceVersion  = $this->getNamespaceVersion() + 1;
+        return $this->redis;
+    }
 
-        if ($this->doSave($namespaceCacheKey, $namespaceVersion, $this->cacheKeyLifetime)) {
-            $this->namespaceVersion = $namespaceVersion;
+    /**
+     * {@inheritdoc}
+     */
+    protected function doFetch($id)
+    {
+        return $this->redis->get($id);
+    }
 
-            return true;
+    /**
+     * {@inheritdoc}
+     */
+    protected function doFetchMultiple(array $keys)
+    {
+        $fetchedItems = array_combine($keys, $this->redis->mget($keys));
+
+        // Redis mget returns false for keys that do not exist. So we need to filter those out unless it's the real data.
+        $foundItems   = array();
+
+        foreach ($fetchedItems as $key => $value) {
+            if (false !== $value || $this->redis->exists($key)) {
+                $foundItems[$key] = $value;
+            }
         }
 
-        return false;
+        return $foundItems;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function doContains($id)
+    {
+        return $this->redis->exists($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function doSave($id, $data, $lifeTime = 0)
+    {
+        if ($lifeTime > 0) {
+            return $this->redis->setex($id, $lifeTime, $data);
+        }
+
+        return $this->redis->set($id, $data);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function doDelete($id)
+    {
+        return $this->redis->delete($id) >= 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function doFlush()
+    {
+        return $this->redis->flushDB();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function doGetStats()
+    {
+        $info = $this->redis->info();
+        return array(
+            Cache::STATS_HITS   => $info['keyspace_hits'],
+            Cache::STATS_MISSES => $info['keyspace_misses'],
+            Cache::STATS_UPTIME => $info['uptime_in_seconds'],
+            Cache::STATS_MEMORY_USAGE      => $info['used_memory'],
+            Cache::STATS_MEMORY_AVAILABLE  => false
+        );
     }
 
     /**
