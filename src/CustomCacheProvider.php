@@ -2,7 +2,7 @@
 
 namespace TFC\Cache;
 
-use Doctrine\Common\CacheProvider;
+use Doctrine\Common\Cache\CacheProvider;
 
 abstract class CustomCacheProvider extends CacheProvider
 {
