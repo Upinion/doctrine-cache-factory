@@ -29,10 +29,10 @@ class DoctrineCacheFactory
      */
     private static $storage = [
         'apc'       => 'Doctrine\Common\Cache\ApcCache',
-        'memcached' => 'Doctrine\Common\Cache\MemcachedCache',
+        'memcached' => '\TFC\Cache\CustomMemcachedCache',
         'memcache'  => 'Doctrine\Common\Cache\MemcacheCache',
         'redis'     => '\TFC\Cache\CustomRedisCache',
-        'predis'     => 'Doctrine\Common\Cache\PredisCache',
+        'predis'    => 'Doctrine\Common\Cache\PredisCache',
     ];
 
     /**
@@ -176,10 +176,18 @@ class DoctrineCacheFactory
 
         $memcached = new \Memcached();
         $memcached->setOption(\Memcached::OPT_PREFIX_KEY, $options["prefix"]);
-        $memcached->addServers($options['servers']);
+        if (isset($options["host"]) && isset($options["port"])) {
+            $memcached->addServer($options["host"], $options["port"]);
+        }
+        if (isset($options["servers"])) {
+            $memcached->addServers($options["servers"]);
+        }
 
         $driver = new self::$storage["memcached"];
         $driver->setMemcached($memcached);
+        if (isset($options["cacheKeyLifetime"])) {
+            $driver->setCacheKeyLifetime(intval($options["cacheKeyLifetime"]));
+        }
 
         return $driver;
     }
