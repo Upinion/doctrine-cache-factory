@@ -27,6 +27,9 @@ class CustomMemcachedCache extends CustomCacheProvider
     {
         // HOTFIX fix problem between compression in hhvm and php
         $memcached->setOption(Memcached::OPT_COMPRESSION, false);
+        // HOTFIX use same hashing system to select nodes as other clients
+        $memcached->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
+        // Set up the default serializer
         $memcached->setOption(Memcached::OPT_SERIALIZER, $this->getSerializerValue());
         $this->memcached = $memcached;
     }
