@@ -17,6 +17,11 @@ class CustomRedisCache extends CustomCacheProvider
     private $redis;
 
     /**
+     * @var Redis|null
+     */
+    private $roRedis;
+
+    /**
      * Sets the redis instance to use.
      *
      * @param Redis $redis
@@ -27,6 +32,21 @@ class CustomRedisCache extends CustomCacheProvider
     {
         $redis->setOption(Redis::OPT_SERIALIZER, $this->getSerializerValue());
         $this->redis = $redis;
+        if (!$this->roRedis) {
+            $this->roRedis = $redis;
+        }
+    }
+
+    /**
+     * Sets the read-only redis instance to use.
+     *
+     * @param Redis $redis
+     *
+     * @return void
+     */
+    public function setReadOnlyRedis(Redis $redis)
+    {
+        $this->roRedis = $redis;
     }
 
     /**
@@ -40,11 +60,21 @@ class CustomRedisCache extends CustomCacheProvider
     }
 
     /**
+     * Gets the redis instance used by the cache.
+     *
+     * @return Redis|null
+     */
+    public function getReadOnlyRedis()
+    {
+        return $this->roRedis;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function doFetch($id)
     {
-        return $this->redis->get($id);
+        return $this->roRedis->get($id);
     }
 
     /**
@@ -52,13 +82,13 @@ class CustomRedisCache extends CustomCacheProvider
      */
     protected function doFetchMultiple(array $keys)
     {
-        $fetchedItems = array_combine($keys, $this->redis->mget($keys));
+        $fetchedItems = array_combine($keys, $this->roRedis->mget($keys));
 
         // Redis mget returns false for keys that do not exist. So we need to filter those out unless it's the real data.
         $foundItems   = array();
 
         foreach ($fetchedItems as $key => $value) {
-            if (false !== $value || $this->redis->exists($key)) {
+            if (false !== $value || $this->roRedis->exists($key)) {
                 $foundItems[$key] = $value;
             }
         }
@@ -71,7 +101,7 @@ class CustomRedisCache extends CustomCacheProvider
      */
     protected function doContains($id)
     {
-        return $this->redis->exists($id);
+        return $this->roRedis->exists($id);
     }
 
     /**
@@ -107,7 +137,7 @@ class CustomRedisCache extends CustomCacheProvider
      */
     protected function doGetStats()
     {
-        $info = $this->redis->info();
+        $info = $this->roRedis->info();
         return array(
             Cache::STATS_HITS   => $info['keyspace_hits'],
             Cache::STATS_MISSES => $info['keyspace_misses'],

@@ -69,8 +69,20 @@ TFC\Cache\DoctrineCacheFactory::setOption(
     [
         'storage'     => 'redis',
         'prefix'      => 'rlyeh',
-        'host         => '127.0.0.1',
+        'host'        => '127.0.0.1',
         'port'        => 6379,
+        'default_ttl' => 3600
+    ]
+);
+// configure Redis with readonly setting.
+TFC\Cache\DoctrineCacheFactory::setOption(
+    [
+        'storage'     => 'redis',
+        'prefix'      => 'rlyeh',
+        'host'        => '127.0.0.1',
+        'port'        => 6379,
+        'hostRO'        => '127.0.0.2',
+        'portRO'        => 6379,
         'default_ttl' => 3600
     ]
 );

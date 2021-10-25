@@ -227,9 +227,20 @@ class DoctrineCacheFactory
         if (isset($options["auth"])) {
             $redis->auth($options["auth"]);
         }
+        // Optional read-only connection
+        $roRedis = null;
+        if (isset($options["hostRO"]) && isset($options["portRO"])) {
+            $roRedis = new \Redis;
+            $roRedis->connect($options["hostRO"], $options["portRO"]);
+            $roRedis->setOption(\Redis::OPT_PREFIX, $options["prefix"]);
+            if (isset($options["auth"])) {
+                $roRedis->auth($options["auth"]);
+            }
+        }
 
         $driver = new self::$storage["redis"];
         $driver->setRedis($redis);
+        if ($roRedis) $driver->setReadOnlyRedis($roRedis);
         if (isset($options["cacheKeyLifetime"])) {
             $driver->setCacheKeyLifetime(intval($options["cacheKeyLifetime"]));
         }
