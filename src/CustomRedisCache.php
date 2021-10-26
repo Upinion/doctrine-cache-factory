@@ -46,6 +46,7 @@ class CustomRedisCache extends CustomCacheProvider
      */
     public function setReadOnlyRedis(Redis $redis)
     {
+        $redis->setOption(Redis::OPT_SERIALIZER, $this->getSerializerValue());
         $this->roRedis = $redis;
     }
 
