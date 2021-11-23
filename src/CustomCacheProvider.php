@@ -10,6 +10,8 @@ abstract class CustomCacheProvider extends CacheProvider
 
     protected $namespaceVersionCustom;
 
+    protected $idPrefixCustom;
+
     protected $cacheKeyLifetime = 604800;
 
     public function setNamespace($namespace)
@@ -21,6 +23,16 @@ abstract class CustomCacheProvider extends CacheProvider
     public function getNamespace()
     {
         return $this->namespaceCustom;
+    }
+
+    public function setIdPrefix($prefix)
+    {
+        $this->idPrefixCustom = (string) $prefix;
+    }
+
+    public function getIdPrefix()
+    {
+        return $this->idPrefixCustom;
     }
 
     public function fetch($id)
@@ -91,9 +103,14 @@ abstract class CustomCacheProvider extends CacheProvider
 
     protected function getNamespacedIdCustom($id)
     {
+        $idString = $id;
+        if ($this->idPrefixCustom) {
+            $idString = sprintf('%s%s', $this->idPrefixCustom, $id);
+        }
+
         $namespaceVersion  = $this->getNamespaceVersionCustom();
 
-        return sprintf('%s[%s][%s]', $this->namespaceCustom, $id, $namespaceVersion);
+        return sprintf('%s[%s][%s]', $this->namespaceCustom, $idString, $namespaceVersion);
     }
 
     protected function getNamespaceCacheKeyCustom()

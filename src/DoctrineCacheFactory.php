@@ -188,6 +188,9 @@ class DoctrineCacheFactory
         if (isset($options["cacheKeyLifetime"])) {
             $driver->setCacheKeyLifetime(intval($options["cacheKeyLifetime"]));
         }
+        if (isset($options["idPrefix"])) {
+            $driver->setIdPrefix(strval($options["idPrefix"]));
+        }
 
         return $driver;
     }
@@ -243,6 +246,9 @@ class DoctrineCacheFactory
         if ($roRedis) $driver->setReadOnlyRedis($roRedis);
         if (isset($options["cacheKeyLifetime"])) {
             $driver->setCacheKeyLifetime(intval($options["cacheKeyLifetime"]));
+        }
+        if (isset($options["idPrefix"])) {
+            $driver->setIdPrefix(strval($options["idPrefix"]));
         }
 
         return $driver;
