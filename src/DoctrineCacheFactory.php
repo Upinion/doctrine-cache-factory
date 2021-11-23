@@ -28,11 +28,8 @@ class DoctrineCacheFactory
      * @var array
      */
     private static $storage = [
-        'apc'       => 'Doctrine\Common\Cache\ApcCache',
         'memcached' => '\TFC\Cache\CustomMemcachedCache',
-        'memcache'  => 'Doctrine\Common\Cache\MemcacheCache',
         'redis'     => '\TFC\Cache\CustomRedisCache',
-        'predis'    => 'Doctrine\Common\Cache\PredisCache',
     ];
 
     /**
@@ -157,15 +154,6 @@ class DoctrineCacheFactory
     }
 
     /**
-     * Initialize a Doctrine ApcCache driver
-     * @return \Doctrine\Common\Cache\ApcCache instance
-     */
-    private static function initializeApcCacheDriver()
-    {
-        return $driver = new self::$storage["apc"];
-    }
-
-    /**
      * Initialize a Doctrine MemcachedCache driver
      * @return \Doctrine\Common\Cache\MemcachedCache instance
      */
@@ -191,26 +179,6 @@ class DoctrineCacheFactory
         if (isset($options["idPrefix"])) {
             $driver->setIdPrefix(strval($options["idPrefix"]));
         }
-
-        return $driver;
-    }
-
-    /**
-     * Initialize a Doctrine MemcacheCache driver
-     * @return \Doctrine\Common\Cache\MemcacheCache instance
-     */
-    private static function initializeMemcacheCacheDriver()
-    {
-
-        $options = self::getOption("memcache");
-
-        $memcache = new \Memcache();
-        foreach ($options['servers'] as $server) {
-            $memcache->addserver($server[0], $server[1]);
-        }
-
-        $driver = new self::$storage["memcache"];
-        $driver->setMemcache($memcache);
 
         return $driver;
     }
@@ -253,22 +221,4 @@ class DoctrineCacheFactory
 
         return $driver;
     }
-    
-    /**
-     * Initialize a Doctrine PredisCache driver
-     * @return \Doctrine\Common\Cache\PredisCache instance
-     */
-    private static function initializePredisCacheDriver()
-    {
-
-        $options = self::getOption("predis");
-
-        $client = new \Predis\Client($options["connection"], $options["options"]); 
-        
-        $driver = new Doctrine\Common\Cache\PredisCache($client);
-
-        return $driver;
-    }
-
-
 }

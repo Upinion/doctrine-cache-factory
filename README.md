@@ -32,6 +32,26 @@ Configuration
 
 Add the following configuration code to your project bootstraping file depending on the storage you are goinng to use.
 
+#### Currently working drivers
+- Redis
+- Memcached
+- Dummy
+##### Other drivers
+- TODO add support for more drivers
+
+#### Driver customise parameters
+```
+- prefix: Prefix appended to the elements key in the storage
+- idPrefix: Prefix appened to the id of the elements when generating the key
+- forceDummy: Use a dummy driver instead
+```
+
+#### Key storage format
+
+```
+{prefix}{namespace}[{idPrefix}{id}][{namespaceVersion}]
+```
+
 ### Using Memcached (php5-memcached extension needed)
 ```php
 // configure memcached setting.
@@ -39,6 +59,7 @@ TFC\Cache\DoctrineCacheFactory::setOption(
     [
         'storage'     => 'memcached',
         'prefix'      => 'rlyeh',
+        'idPrefix'    => 'php_',
         'default_ttl' => 3600,
         'servers'     => [
             ['server1', 11211, 20],
@@ -49,19 +70,6 @@ TFC\Cache\DoctrineCacheFactory::setOption(
 
 ```
 
-### Using APC
-```php
-// configure APC setting.
-TFC\Cache\DoctrineCacheFactory::setOption(
-    [
-        'storage'     => 'apc',
-        'default_ttl' => 3600
-    ]
-);
-
-```
-
-
 ### Using Redis
 ```php
 // configure Redis setting.
@@ -69,6 +77,7 @@ TFC\Cache\DoctrineCacheFactory::setOption(
     [
         'storage'     => 'redis',
         'prefix'      => 'rlyeh',
+        'prefix'      => 'php_',
         'host'        => '127.0.0.1',
         'port'        => 6379,
         'default_ttl' => 3600
@@ -79,6 +88,7 @@ TFC\Cache\DoctrineCacheFactory::setOption(
     [
         'storage'     => 'redis',
         'prefix'      => 'rlyeh',
+        'idPrefix'    => 'php_',
         'host'        => '127.0.0.1',
         'port'        => 6379,
         'hostRO'        => '127.0.0.2',
